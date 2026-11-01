@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -23,10 +24,16 @@ class AuthController extends Controller
             'profile_type' => ['required', 'in:particulier,eleveur'],
         ]);
 
-        $user = User::query()->create([
+        $attributes = [
             ...$validated,
             'password' => Hash::make($validated['password']),
-        ]);
+        ];
+
+        if (Schema::hasColumn('users', 'name')) {
+            $attributes['name'] = trim($validated['first_name'].' '.$validated['last_name']);
+        }
+
+        $user = User::query()->create($attributes);
 
         Auth::login($user);
         $request->session()->regenerate();
@@ -70,6 +77,15 @@ class AuthController extends Controller
                 Rule::unique('users', 'email')->ignore($request->user()->id),
             ],
         ]);
+
+        if (Schema::hasColumn('users', 'name')
+            && (array_key_exists('first_name', $validated) || array_key_exists('last_name', $validated))) {
+            $validated['name'] = trim(
+                ($validated['first_name'] ?? $request->user()->first_name)
+                .' '
+                .($validated['last_name'] ?? $request->user()->last_name)
+            );
+        }
 
         $request->user()->update($validated);
 

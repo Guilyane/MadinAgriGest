@@ -17,6 +17,13 @@ export class ApiError extends Error {
     }
 }
 
+function connectionError() {
+    return new ApiError(
+        'Impossible de contacter le serveur. Vérifiez votre connexion et que le serveur de l’application est démarré, puis réessayez.',
+        0,
+    );
+}
+
 function csrfToken() {
     const cookie = document.cookie
         .split('; ')
@@ -62,6 +69,10 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
             ? path
             : `/api${path}`, options);
     } catch (error) {
+        if (['/auth/login', '/auth/register'].includes(path)) {
+            throw connectionError();
+        }
+
         offlineState.isOnline = false;
         if (method === 'GET') {
             const cached = await getCachedApiResponse(userId, path);
@@ -73,10 +84,30 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
             return queueOfflineChange(userId, path, method, body);
         }
 
-        throw error;
+        throw connectionError();
     }
 
-    const payload = response.status === 204 ? null : await response.json();
+    if (!response.ok && response.status >= 500) {
+        throw new ApiError(
+            'Une erreur technique est survenue sur le serveur. Réessayez ou contactez l’administrateur.',
+            response.status,
+        );
+    }
+
+    let payload = null;
+    if (response.status !== 204) {
+        try {
+            payload = await response.json();
+        } catch {
+            if (!response.ok) {
+                throw new ApiError(
+                    'Le serveur a rencontré une erreur. Réessayez plus tard ou contactez l’administrateur.',
+                    response.status,
+                );
+            }
+            throw new ApiError('Le serveur a envoyé une réponse invalide.', response.status);
+        }
+    }
 
     if (!response.ok) {
         throw new ApiError(
@@ -101,12 +132,20 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
 }
 
 export async function ensureCsrfCookie() {
-    const response = await fetch('/sanctum/csrf-cookie', {
-        credentials: 'same-origin',
-        headers: { Accept: 'application/json' },
-    });
+    let response;
+    try {
+        response = await fetch('/sanctum/csrf-cookie', {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+        });
+    } catch {
+        throw connectionError();
+    }
 
     if (!response.ok) {
-        throw new ApiError('Impossible de préparer la session sécurisée.', response.status);
+        throw new ApiError(
+            'Impossible de préparer la session sécurisée. Vérifiez que le serveur de l’application est démarré, puis réessayez.',
+            response.status,
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -12,6 +13,10 @@ class RegistrationTest extends TestCase
 
     public function test_user_can_register_as_a_particular_or_breeder(): void
     {
+        Schema::table('users', function ($table): void {
+            $table->string('name');
+        });
+
         $response = $this->withHeader('Origin', 'http://localhost')
             ->postJson('/api/auth/register', [
                 'first_name' => 'Aline',
@@ -28,6 +33,7 @@ class RegistrationTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'aline@example.test',
+            'name' => 'Aline Martin',
             'profile_type' => 'eleveur',
         ]);
     }
