@@ -11,6 +11,7 @@ const email = ref('');
 const password = ref('');
 const error = ref('');
 const busy = ref(false);
+const loginIllustration = '/images/animaux-ferme.png';
 
 async function submit() {
     error.value = '';
@@ -47,8 +48,8 @@ async function submit() {
             </form>
             <p class="auth-switch">Pas encore de compte ? <RouterLink :to="{ name: 'register' }">Créer un compte</RouterLink></p>
         </section>
-        <aside class="login-animals" aria-hidden="true">
-            <span>🐑</span><span>🐐</span><span>🐴</span><span>🐄</span><span>🐖</span><span>🐇</span>
+        <aside class="login-animals">
+            <img :src="loginIllustration" alt="Illustration d’animaux de la ferme">
         </aside>
     </main>
 </template>

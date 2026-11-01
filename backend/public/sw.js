@@ -1,4 +1,4 @@
-const CACHE_NAME = 'madinagrigest-shell-v1';
+const CACHE_NAME = 'madinagrigest-shell-v2';
 const APP_ROOT = '/';
 
 self.addEventListener('install', (event) => {
@@ -14,7 +14,7 @@ self.addEventListener('install', (event) => {
         }
 
         const manifest = await manifestResponse.json();
-        const assets = new Set(['/build/manifest.json']);
+        const assets = new Set(['/build/manifest.json', '/images/animaux-ferme.png']);
         for (const entry of Object.values(manifest)) {
             if (entry.file) assets.add(`/build/${entry.file}`);
             for (const asset of [...(entry.css ?? []), ...(entry.assets ?? [])]) {
