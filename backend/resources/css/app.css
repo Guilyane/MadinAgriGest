@@ -202,9 +202,7 @@ p { line-height: 1.55; }
 .register-art { background: #fafafa; }
 .register-art::before { background: #f0e2d9; }
 .register-art::after { background: #ead2c8; }
-.farm-emoji { right: 15%; bottom: 18%; display: flex; align-items: flex-end; gap: 5px; font-size: clamp(4rem, 8vw, 7rem); }
-.farm-emoji span:nth-child(2) { transform: translateY(-18px); }
-.farm-emoji span:nth-child(3) { font-size: .85em; }
+.register-illustration { position: absolute; right: 5%; bottom: 8%; z-index: 2; width: min(76%, 520px); max-height: 76%; object-fit: contain; filter: drop-shadow(0 15px 9px rgb(31 56 34 / 15%)); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
 .not-found { display: grid; min-height: 100vh; justify-items: center; align-content: center; padding: 24px; text-align: center; }
 .not-found .brand-mark { width: 54px; height: 54px; margin-bottom: 26px; font-size: 1.3rem; }
@@ -242,6 +240,12 @@ p { line-height: 1.55; }
     .auth-page { display: block; }
     .auth-card { width: min(480px, calc(100% - 36px)); min-height: 100vh; padding: 35px 0; }
     .auth-illustration { display: none; }
+    .auth-register .auth-illustration { display: flex; min-height: 260px; align-items: flex-start; justify-content: center; padding: 18px; }
+    .auth-register .auth-illustration::before, .auth-register .auth-illustration::after { display: none; }
+    .auth-register .auth-illustration .register-illustration { position: relative; right: auto; bottom: auto; width: min(55%, 220px); max-height: 245px; margin-left: auto; }
+    .auth-register .auth-illustration .field-lines { display: none; }
+    .auth-register .auth-illustration p { align-self: flex-end; max-width: 40%; margin: 0 auto 0 0; font-size: 1.15rem; }
+    .auth-register .auth-illustration .sun-disc { top: 28px; right: 12%; width: 75px; height: 75px; }
     .register-card { min-height: auto; padding: 30px 0 42px; }
     .auth-login { display: flex; min-height: 100vh; justify-content: flex-start; }
     .auth-login .auth-card { min-height: 0; padding-top: 42px; }

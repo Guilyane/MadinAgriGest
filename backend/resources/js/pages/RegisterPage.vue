@@ -18,6 +18,7 @@ const form = ref({
 const errors = ref({});
 const generalError = ref('');
 const busy = ref(false);
+const registrationIllustration = '/images/duo-fermiers.png';
 
 async function submit() {
     errors.value = {};
@@ -42,10 +43,10 @@ async function submit() {
 
 <template>
     <main class="auth-page auth-register">
-        <aside class="auth-illustration register-art" aria-hidden="true">
+        <aside class="auth-illustration register-art">
             <span class="sun-disc"></span>
             <div class="field-lines"></div>
-            <div class="farm-emoji"><span>👨🏾‍🌾</span><span>👩🏾‍🌾</span><span>🛒</span></div>
+            <img class="register-illustration" :src="registrationIllustration" alt="Deux agriculteurs avec leurs outils de travail">
             <p>Bienvenue dans<br>la communauté agricole.</p>
         </aside>
         <section class="auth-card register-card" aria-labelledby="register-title">
