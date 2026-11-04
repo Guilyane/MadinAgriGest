@@ -7,19 +7,25 @@ import {
     saveCachedUser,
     updateCachedResponses,
 } from './offline';
+import { t, translateError } from './i18n';
 
 export class ApiError extends Error {
     constructor(message, status, errors = {}) {
         super(message);
         this.name = 'ApiError';
         this.status = status;
-        this.errors = errors;
+        this.errors = Object.fromEntries(
+            Object.entries(errors).map(([field, messages]) => [
+                field,
+                (Array.isArray(messages) ? messages : [messages]).map(translateError),
+            ]),
+        );
     }
 }
 
 function connectionError() {
     return new ApiError(
-        'Impossible de contacter le serveur. Vérifiez votre connexion et que le serveur de l’application est démarré, puis réessayez.',
+        t('Impossible de contacter le serveur. Vérifiez votre connexion et que le serveur de l’application est démarré, puis réessayez.'),
         0,
     );
 }
@@ -42,7 +48,7 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
     }
     if (!offlineState.isOnline && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
         if (path === '/auth/logout') {
-            throw new ApiError('Une connexion est nécessaire pour se déconnecter en toute sécurité.', 0);
+            throw new ApiError(t('Une connexion est nécessaire pour se déconnecter en toute sécurité.'), 0);
         }
         return queueOfflineChange(userId, path, method, body);
     }
@@ -79,7 +85,7 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
             if (cached !== null) return cached;
         } else if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
             if (path === '/auth/logout') {
-                throw new ApiError('Une connexion est nécessaire pour se déconnecter en toute sécurité.', 0);
+                throw new ApiError(t('Une connexion est nécessaire pour se déconnecter en toute sécurité.'), 0);
             }
             return queueOfflineChange(userId, path, method, body);
         }
@@ -89,7 +95,7 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
 
     if (!response.ok && response.status >= 500) {
         throw new ApiError(
-            'Une erreur technique est survenue sur le serveur. Réessayez ou contactez l’administrateur.',
+            t('Une erreur technique est survenue sur le serveur. Réessayez ou contactez l’administrateur.'),
             response.status,
         );
     }
@@ -101,17 +107,17 @@ export async function apiRequest(path, { method = 'GET', body } = {}) {
         } catch {
             if (!response.ok) {
                 throw new ApiError(
-                    'Le serveur a rencontré une erreur. Réessayez plus tard ou contactez l’administrateur.',
+                    t('Le serveur a rencontré une erreur. Réessayez plus tard ou contactez l’administrateur.'),
                     response.status,
                 );
             }
-            throw new ApiError('Le serveur a envoyé une réponse invalide.', response.status);
+            throw new ApiError(t('Le serveur a envoyé une réponse invalide.'), response.status);
         }
     }
 
     if (!response.ok) {
         throw new ApiError(
-            payload?.message ?? 'Une erreur est survenue. Réessaie plus tard.',
+            translateError(payload?.message ?? t('Une erreur est survenue. Réessaie plus tard.')),
             response.status,
             payload?.errors ?? {},
         );
@@ -144,7 +150,7 @@ export async function ensureCsrfCookie() {
 
     if (!response.ok) {
         throw new ApiError(
-            'Impossible de préparer la session sécurisée. Vérifiez que le serveur de l’application est démarré, puis réessayez.',
+            t('Impossible de préparer la session sécurisée. Vérifiez que le serveur de l’application est démarré, puis réessayez.'),
             response.status,
         );
     }

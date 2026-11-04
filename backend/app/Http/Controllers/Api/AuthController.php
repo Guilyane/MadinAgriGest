@@ -22,6 +22,12 @@ class AuthController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'profile_type' => ['required', 'in:particulier,eleveur'],
+            'siret' => [
+                'exclude_unless:profile_type,eleveur',
+                'required',
+                'string',
+                'regex:/^[0-9]{14}$/',
+            ],
         ]);
 
         $attributes = [

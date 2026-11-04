@@ -1,4 +1,5 @@
 import { reactive } from 'vue';
+import { t } from './i18n';
 
 const databaseName = 'madinagrigest-offline';
 const storeName = 'records';
@@ -419,7 +420,7 @@ export async function syncQueuedChanges(userId = offlineState.userId) {
                 response = await fetch(path.startsWith('/sanctum') ? path : `/api${path}`, options);
             } catch (error) {
                 offlineState.isOnline = false;
-                offlineState.syncError = error.message || 'Réseau indisponible.';
+                offlineState.syncError = error.message || t('Réseau indisponible.');
                 break;
             }
 
@@ -435,7 +436,7 @@ export async function syncQueuedChanges(userId = offlineState.userId) {
 
             if (!response.ok) {
                 const message = response.status === 401
-                    ? 'La session a expiré. Reconnectez-vous pour synchroniser les changements.'
+                    ? t('La session a expiré. Reconnectez-vous pour synchroniser les changements.')
                     : payload?.message ?? `La synchronisation a échoué (HTTP ${response.status}).`;
 
                 if (response.status >= 400 && response.status < 500 && ![408, 429].includes(response.status)) {

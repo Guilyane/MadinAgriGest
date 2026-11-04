@@ -26,6 +26,7 @@ Route::middleware(['auth:sanctum', 'can:manage-animals'])->group(function (): vo
         'data' => LivestockType::query()->orderBy('name')->get(['id', 'name']),
     ]));
 
+    Route::get('/animal-parent-options', [AnimalController::class, 'parentOptions']);
     Route::apiResource('animals', AnimalController::class);
 
     Route::get('/animals/{animal}/health-records', [HealthRecordController::class, 'index']);

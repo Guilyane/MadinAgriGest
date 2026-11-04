@@ -54,6 +54,8 @@ p { line-height: 1.55; }
 .nav-link:hover, .nav-link.router-link-active { color: var(--brand-red-dark); background: var(--brand-red-light); }
 .nav-link:hover > span, .nav-link.router-link-active > span { color: var(--brand-red-dark); }
 .nav-button { width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; }
+.language-switcher { position: fixed; top: 14px; right: 18px; z-index: 8; min-width: 44px; min-height: 36px; border: 1px solid var(--line); border-radius: 9px; color: var(--brand-red-dark); background: #fff; cursor: pointer; font-size: .82rem; font-weight: 700; box-shadow: 0 2px 8px rgb(25 25 25 / 8%); }
+.language-switcher:hover { background: #fff5f5; }
 .main-content { width: calc(100% - 250px); max-width: 1700px; min-height: 100vh; margin-left: 250px; padding: 42px clamp(24px, 5vw, 72px) 64px; }
 .offline-banner { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-left: 250px; padding: 13px 20px; border: 1px solid #e7c779; border-radius: 0 0 12px 12px; color: #644b12; background: #fff8df; box-shadow: var(--shadow); font-size: .86rem; }
 .offline-banner-error { border-color: #e6aaa8; color: #7d171b; background: #fff0ef; }

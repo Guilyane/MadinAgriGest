@@ -82,6 +82,63 @@ class AnimalAuthorizationTest extends TestCase
             ->assertJsonValidationErrors('parent_animal_id');
     }
 
+    public function test_animal_parents_are_optional_when_created_and_can_be_added_later(): void
+    {
+        $user = User::factory()->create();
+        $type = LivestockType::query()->firstOrCreate(['name' => 'Bovin']);
+        $mother = $user->animals()->create([
+            'livestock_type_id' => $type->id,
+            'name' => 'Mère',
+            'sex' => 'femelle',
+        ]);
+        $father = $user->animals()->create([
+            'livestock_type_id' => $type->id,
+            'name' => 'Père',
+            'sex' => 'male',
+        ]);
+
+        $animal = $this->actingAs($user)->postJson('/api/animals', [
+            'livestock_type_id' => $type->id,
+            'name' => 'Petit',
+        ])->assertCreated()
+            ->assertJsonPath('data.mother_animal_id', null)
+            ->assertJsonPath('data.father_animal_id', null)
+            ->json('data');
+
+        $this->patchJson("/api/animals/{$animal['id']}", [
+            'mother_animal_id' => $mother->id,
+            'father_animal_id' => $father->id,
+        ])->assertOk()
+            ->assertJsonPath('data.mother.id', $mother->id)
+            ->assertJsonPath('data.father.id', $father->id);
+
+        $this->getJson("/api/animals/{$animal['id']}")
+            ->assertOk()
+            ->assertJsonPath('data.mother.name', 'Mère')
+            ->assertJsonPath('data.father.name', 'Père');
+    }
+
+    public function test_animal_parent_options_only_include_the_current_users_animals(): void
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $type = LivestockType::query()->firstOrCreate(['name' => 'Bovin']);
+        $animal = $user->animals()->create([
+            'livestock_type_id' => $type->id,
+            'name' => 'Animal autorisé',
+        ]);
+        $otherAnimal = $otherUser->animals()->create([
+            'livestock_type_id' => $type->id,
+            'name' => 'Animal privé',
+        ]);
+
+        $this->actingAs($user)
+            ->getJson('/api/animal-parent-options')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $animal->id])
+            ->assertJsonMissing(['id' => $otherAnimal->id]);
+    }
+
     public function test_animal_can_have_one_housing_type(): void
     {
         $user = User::factory()->create();

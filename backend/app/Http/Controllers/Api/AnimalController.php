@@ -20,13 +20,22 @@ class AnimalController extends Controller
         return response()->json($animals);
     }
 
+    public function parentOptions(Request $request): JsonResponse
+    {
+        return response()->json([
+            'data' => $request->user()->animals()
+                ->orderBy('name')
+                ->get(['id', 'name', 'sex', 'tag_number']),
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate($this->rules($request));
         $animal = $request->user()->animals()->create($validated);
 
         return response()->json([
-            'data' => $animal->load(['livestockType', 'exploitation', 'parent']),
+            'data' => $animal->load(['livestockType', 'exploitation', 'parent', 'mother', 'father']),
         ], 201);
     }
 
@@ -37,6 +46,8 @@ class AnimalController extends Controller
                 'livestockType',
                 'exploitation',
                 'parent',
+                'mother',
+                'father',
                 'healthRecords',
                 'reminders',
             ]),
@@ -49,7 +60,7 @@ class AnimalController extends Controller
         $model->update($request->validate($this->rules($request, updating: true)));
 
         return response()->json([
-            'data' => $model->refresh()->load(['livestockType', 'exploitation', 'parent']),
+            'data' => $model->refresh()->load(['livestockType', 'exploitation', 'parent', 'mother', 'father']),
         ]);
     }
 
@@ -83,6 +94,20 @@ class AnimalController extends Controller
                 Rule::exists('livestock_types', 'id'),
             ],
             'parent_animal_id' => [
+                'sometimes',
+                'nullable',
+                Rule::notIn([$request->route('animal')]),
+                Rule::exists('animals', 'id')
+                    ->where('owner_user_id', $request->user()->id),
+            ],
+            'mother_animal_id' => [
+                'sometimes',
+                'nullable',
+                Rule::notIn([$request->route('animal')]),
+                Rule::exists('animals', 'id')
+                    ->where('owner_user_id', $request->user()->id),
+            ],
+            'father_animal_id' => [
                 'sometimes',
                 'nullable',
                 Rule::notIn([$request->route('animal')]),

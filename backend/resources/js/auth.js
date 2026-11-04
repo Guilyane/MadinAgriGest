@@ -7,6 +7,7 @@ import {
     saveCachedUser,
     setActiveUser,
 } from './offline';
+import { t } from './i18n';
 
 function warmOfflineData(user) {
     if (!navigator.onLine) return;
@@ -84,7 +85,7 @@ export const auth = reactive({
 
     async logout() {
         if (!navigator.onLine) {
-            throw new Error('Une connexion est nécessaire pour se déconnecter en toute sécurité.');
+            throw new Error(t('Une connexion est nécessaire pour se déconnecter en toute sécurité.'));
         }
         await apiRequest('/auth/logout', { method: 'POST' });
         this.user = null;

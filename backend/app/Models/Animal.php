@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'exploitation_id',
     'livestock_type_id',
     'parent_animal_id',
+    'mother_animal_id',
+    'father_animal_id',
     'tag_number',
     'housing_type',
     'name',
@@ -39,6 +41,16 @@ class Animal extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'parent_animal_id');
+    }
+
+    public function mother(): BelongsTo
+    {
+        return $this->belongsTo(Animal::class, 'mother_animal_id');
+    }
+
+    public function father(): BelongsTo
+    {
+        return $this->belongsTo(Animal::class, 'father_animal_id');
     }
 
     public function healthRecords(): HasMany

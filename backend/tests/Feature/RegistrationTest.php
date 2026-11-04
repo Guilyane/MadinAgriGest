@@ -25,6 +25,7 @@ class RegistrationTest extends TestCase
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
                 'profile_type' => 'eleveur',
+                'siret' => '12345678901234',
             ]);
 
         $response->assertCreated()
@@ -35,6 +36,52 @@ class RegistrationTest extends TestCase
             'email' => 'aline@example.test',
             'name' => 'Aline Martin',
             'profile_type' => 'eleveur',
+            'siret' => '12345678901234',
+        ]);
+    }
+
+    public function test_breeder_registration_requires_a_valid_siret(): void
+    {
+        $registration = [
+            'first_name' => 'Aline',
+            'last_name' => 'Martin',
+            'email' => 'aline@example.test',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'profile_type' => 'eleveur',
+        ];
+
+        $this->withHeader('Origin', 'http://localhost')
+            ->postJson('/api/auth/register', $registration)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('siret');
+
+        $this->withHeader('Origin', 'http://localhost')
+            ->postJson('/api/auth/register', [...$registration, 'siret' => '1234567890123A'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('siret');
+
+        $this->assertSame(0, User::query()->count());
+    }
+
+    public function test_particular_registration_does_not_require_a_siret(): void
+    {
+        $this->withHeader('Origin', 'http://localhost')
+            ->postJson('/api/auth/register', [
+                'first_name' => 'Aline',
+                'last_name' => 'Martin',
+                'email' => 'aline@example.test',
+                'password' => 'password123',
+                'password_confirmation' => 'password123',
+                'profile_type' => 'particulier',
+                'siret' => '123',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.profile_type', 'particulier');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'aline@example.test',
+            'siret' => null,
         ]);
     }
 

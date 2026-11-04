@@ -5,6 +5,7 @@ import { auth } from '../auth';
 import { ApiError } from '../api';
 import AlertMessage from '../components/AlertMessage.vue';
 import FormField from '../components/FormField.vue';
+import { t } from '../i18n';
 
 const router = useRouter();
 const email = ref('');
@@ -33,23 +34,23 @@ async function submit() {
     <main class="auth-page auth-login">
         <section class="auth-card" aria-labelledby="login-title">
             <RouterLink class="auth-brand" :to="{ name: 'login' }">MadinAgriGest</RouterLink>
-            <h1 id="login-title" class="visually-hidden">Se connecter</h1>
+            <h1 id="login-title" class="visually-hidden">{{ t('Se connecter') }}</h1>
             <form class="form-stack" @submit.prevent="submit">
                 <AlertMessage :message="error" />
-                <FormField id="email" label="Adresse e-mail">
+                <FormField id="email" :label="t('Adresse e-mail')">
                     <input id="email" v-model.trim="email" autocomplete="email" type="email" required>
                 </FormField>
-                <FormField id="password" label="Mot de passe">
+                <FormField id="password" :label="t('Mot de passe')">
                     <input id="password" v-model="password" autocomplete="current-password" type="password" required>
                 </FormField>
                 <button class="button button-primary button-wide" type="submit" :disabled="busy">
-                    {{ busy ? 'Connexion…' : 'Se connecter' }}
+                    {{ t(busy ? 'Connexion…' : 'Se connecter') }}
                 </button>
             </form>
-            <p class="auth-switch">Pas encore de compte ? <RouterLink :to="{ name: 'register' }">Créer un compte</RouterLink></p>
+            <p class="auth-switch">{{ t('Pas encore de compte ?') }} <RouterLink :to="{ name: 'register' }">{{ t('Créer un compte') }}</RouterLink></p>
         </section>
         <aside class="login-animals">
-            <img :src="loginIllustration" alt="Illustration d’animaux de la ferme">
+            <img :src="loginIllustration" :alt="t('Illustration d’animaux de la ferme')">
         </aside>
     </main>
 </template>
