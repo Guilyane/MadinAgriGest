@@ -9,7 +9,7 @@ class LivestockTypeSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['Bovin', 'Porcin', 'Équin', 'Caprin'] as $name) {
+        foreach (['Bovin', 'Porcin', 'Équin', 'Caprin', 'Ovin'] as $name) {
             LivestockType::query()->firstOrCreate(['name' => $name]);
         }
     }

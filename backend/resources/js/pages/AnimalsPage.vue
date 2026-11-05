@@ -42,11 +42,11 @@ function housingLabel(value) {
         <section v-else-if="animals.length" class="animal-grid" :aria-label="t('Liste des animaux')">
             <article v-for="animal in animals" :key="animal.id" class="animal-card">
                 <div class="animal-card-top">
-                    <span class="animal-avatar" aria-hidden="true">{{ animal.livestock_type?.name === 'Équin' ? '🐴' : animal.livestock_type?.name === 'Porcin' ? '🐖' : animal.livestock_type?.name === 'Caprin' ? '🐐' : '🐄' }}</span>
+                    <span class="animal-avatar" aria-hidden="true">{{ animal.livestock_type?.name === 'Équin' ? '🐴' : animal.livestock_type?.name === 'Porcin' ? '🐖' : animal.livestock_type?.name === 'Caprin' ? '🐐' : animal.livestock_type?.name === 'Ovin' ? '🐑' : '🐄' }}</span>
                     <span class="status-badge" :class="`status-${animal.status}`">{{ statusLabel(animal.status) }}</span>
                 </div>
                 <h2>{{ animal.name }}</h2>
-                <p class="muted">{{ t(animal.livestock_type?.name ?? '') }}<span v-if="animal.tag_number"> · {{ t('Boucle') }} {{ animal.tag_number }}</span></p>
+                <p class="muted">{{ t(animal.livestock_type?.name ?? '') }}<span v-if="animal.breed"> · {{ animal.breed }}</span><span v-if="animal.tag_number"> · {{ t('Boucle') }} {{ animal.tag_number }}</span></p>
                 <p class="animal-housing">{{ housingLabel(animal.housing_type) }}</p>
                 <p v-if="animal.exploitation" class="muted">{{ animal.exploitation.name }}</p>
                 <RouterLink class="button button-secondary button-wide" :to="{ name: 'animal-detail', params: { id: animal.id } }">{{ t('Voir la fiche') }}</RouterLink>

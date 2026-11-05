@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Animal;
+use App\Models\LivestockType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AnimalController extends Controller
@@ -32,7 +34,35 @@ class AnimalController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate($this->rules($request));
-        $animal = $request->user()->animals()->create($validated);
+        $name = trim((string) ($validated['name'] ?? ''));
+
+        if ($name === '') {
+            $animal = DB::transaction(function () use ($request, $validated): Animal {
+                $request->user()->newQuery()
+                    ->whereKey($request->user()->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $type = LivestockType::query()->findOrFail($validated['livestock_type_id']);
+                $nextNumber = $request->user()->animals()
+                    ->where('livestock_type_id', $type->id)
+                    ->pluck('name')
+                    ->reduce(function (int $nextNumber, string $existingName) use ($type): int {
+                        if (preg_match('/^'.preg_quote($type->name, '/').' (\d+)$/u', $existingName, $matches)) {
+                            return max($nextNumber, (int) $matches[1] + 1);
+                        }
+
+                        return $nextNumber;
+                    }, 1);
+
+                return $request->user()->animals()->create([
+                    ...$validated,
+                    'name' => "{$type->name} {$nextNumber}",
+                ]);
+            });
+        } else {
+            $animal = $request->user()->animals()->create($validated);
+        }
 
         return response()->json([
             'data' => $animal->load(['livestockType', 'exploitation', 'parent', 'mother', 'father']),
@@ -127,7 +157,10 @@ class AnimalController extends Controller
                 'nullable',
                 Rule::in(['plein_air', 'stabulation']),
             ],
-            'name' => [$required, 'string', 'max:100'],
+            'name' => $updating
+                ? ['sometimes', 'required', 'string', 'max:100']
+                : ['sometimes', 'nullable', 'string', 'max:100'],
+            'breed' => ['sometimes', 'nullable', 'string', 'max:100'],
             'sex' => ['sometimes', 'nullable', Rule::in(['femelle', 'male'])],
             'birth_date' => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'status' => ['sometimes', Rule::in(['actif', 'vendu', 'decede'])],

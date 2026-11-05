@@ -16,11 +16,12 @@ class AnimalAuthorizationTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->getJson('/api/livestock-types')
             ->assertOk()
-            ->assertJsonCount(4, 'data')
+            ->assertJsonCount(5, 'data')
             ->assertJsonFragment(['name' => 'Bovin'])
             ->assertJsonFragment(['name' => 'Équin'])
             ->assertJsonFragment(['name' => 'Porcin'])
-            ->assertJsonFragment(['name' => 'Caprin']);
+            ->assertJsonFragment(['name' => 'Caprin'])
+            ->assertJsonFragment(['name' => 'Ovin']);
     }
 
     public function test_user_cannot_view_another_users_animal(): void
@@ -63,6 +64,25 @@ class AnimalAuthorizationTest extends TestCase
             'name' => 'Brune',
         ])->assertUnprocessable()
             ->assertJsonValidationErrors('tag_number');
+    }
+
+    public function test_animal_name_is_generated_from_type_when_omitted_and_race_is_saved(): void
+    {
+        $user = User::factory()->create();
+        $type = LivestockType::query()->firstOrCreate(['name' => 'Caprin']);
+
+        $this->actingAs($user)->postJson('/api/animals', [
+            'livestock_type_id' => $type->id,
+            'name' => '',
+            'breed' => 'Créole',
+        ])->assertCreated()
+            ->assertJsonPath('data.name', 'Caprin 1')
+            ->assertJsonPath('data.breed', 'Créole');
+
+        $this->postJson('/api/animals', [
+            'livestock_type_id' => $type->id,
+        ])->assertCreated()
+            ->assertJsonPath('data.name', 'Caprin 2');
     }
 
     public function test_an_animal_cannot_be_its_own_parent(): void

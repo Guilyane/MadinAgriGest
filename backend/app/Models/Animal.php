@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'tag_number',
     'housing_type',
     'name',
+    'breed',
     'sex',
     'birth_date',
     'status',

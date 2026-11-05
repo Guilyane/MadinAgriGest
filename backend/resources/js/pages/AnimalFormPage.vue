@@ -20,6 +20,7 @@ const exploitations = ref([]);
 const parentOptions = ref([]);
 const form = ref({
     name: '',
+    breed: '',
     livestock_type_id: '',
     tag_number: '',
     sex: '',
@@ -60,6 +61,7 @@ async function loadAnimal() {
     const animal = response.data;
     form.value = {
         name: animal.name ?? '',
+        breed: animal.breed ?? '',
         livestock_type_id: String(animal.livestock_type_id ?? ''),
         tag_number: animal.tag_number ?? '',
         sex: animal.sex ?? '',
@@ -78,6 +80,7 @@ async function submit() {
     errors.value = {};
     const payload = {
         ...form.value,
+        breed: form.value.breed || null,
         livestock_type_id: Number(form.value.livestock_type_id),
         tag_number: form.value.tag_number || null,
         sex: form.value.sex || null,
@@ -123,8 +126,11 @@ async function submit() {
         <form v-else class="panel form-panel" @submit.prevent="submit">
             <AlertMessage :message="error" />
             <div class="form-grid">
-                <FormField id="animal_name" :label="t('Nom')" :error="errors.name">
-                    <input id="animal_name" v-model.trim="form.name" maxlength="100" required>
+                <FormField id="animal_name" :label="t('Nom')" :error="errors.name" :hint="isEditing ? '' : t('Laissez vide pour générer un nom à partir du type.')">
+                    <input id="animal_name" v-model.trim="form.name" maxlength="100" :required="isEditing">
+                </FormField>
+                <FormField id="animal_breed" :label="t('Race')" :error="errors.breed">
+                    <input id="animal_breed" v-model.trim="form.breed" maxlength="100">
                 </FormField>
                 <FormField id="livestock_type" :label="t('Type de bétail')" :error="errors.livestock_type_id">
                     <select id="livestock_type" v-model="form.livestock_type_id" required>

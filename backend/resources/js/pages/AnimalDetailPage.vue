@@ -102,6 +102,7 @@ async function archiveAnimal() {
                     <div class="section-heading"><div><p class="eyebrow">{{ t('Informations') }}</p><h2>{{ t('Fiche de l’animal') }}</h2></div><span class="status-badge" :class="`status-${animal.status}`">{{ t({ actif: 'Actif', vendu: 'Vendu', decede: 'Décédé', archive: 'Archivé' }[animal.status] ?? animal.status) }}</span></div>
                     <dl class="detail-list">
                         <div><dt>{{ t('Type') }}</dt><dd>{{ t(animal.livestock_type?.name ?? '—') }}</dd></div>
+                        <div><dt>{{ t('Race') }}</dt><dd>{{ animal.breed || t('Non renseigné') }}</dd></div>
                         <div><dt>{{ t('Numéro de boucle') }}</dt><dd>{{ animal.tag_number || t('Non renseigné') }}</dd></div>
                         <div><dt>{{ t('Sexe') }}</dt><dd>{{ t(animal.sex === 'male' ? 'Mâle' : animal.sex === 'femelle' ? 'Femelle' : 'Non renseigné') }}</dd></div>
                         <div><dt>{{ t('Date de naissance') }}</dt><dd>{{ formatDate(animal.birth_date) }}</dd></div>
